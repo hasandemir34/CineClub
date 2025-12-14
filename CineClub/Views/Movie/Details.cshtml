@@ -3,6 +3,8 @@
 
 @{
     ViewData["Title"] = "Details";
+    // Türkiye saat dilimini tanımla
+    var turkeyTimeZone = TimeZoneInfo.FindSystemTimeZoneById("Turkey Standard Time");
 }
 
 <h1>Details</h1>
@@ -56,21 +58,29 @@
         <tbody>
         @foreach (var r in Model.Reviews.OrderByDescending(r => r.CreatedAtUtc))
         {
+            var createdTurkeyTime = r.CreatedAtUtc.HasValue 
+                ? TimeZoneInfo.ConvertTimeFromUtc(r.CreatedAtUtc.Value, turkeyTimeZone)
+                : (DateTime?)null;
+            
+            var updatedTurkeyTime = r.UpdatedAtUtc.HasValue 
+                ? TimeZoneInfo.ConvertTimeFromUtc(r.UpdatedAtUtc.Value, turkeyTimeZone)
+                : (DateTime?)null;
+            
             <tr>
                 <td>@r.Rating / 5</td>
                 <td>
                     @r.Content
                     
                     @* ÖZELLIK 2: Review güncellenmiş mi kontrol et *@
-                    @if (r.UpdatedAtUtc.HasValue)
+                    @if (updatedTurkeyTime.HasValue)
                     {
                         <br />
                         <small class="text-muted">
-                            <em>Edited at @r.UpdatedAtUtc.Value.ToLocalTime().ToString("dd.MM.yyyy HH:mm")</em>
+                            <em>Edited at @updatedTurkeyTime.Value.ToString("dd.MM.yyyy HH:mm")</em>
                         </small>
                     }
                 </td>
-                <td>@r.CreatedAtUtc?.ToLocalTime().ToString("dd.MM.yyyy HH:mm")</td>
+                <td>@(createdTurkeyTime?.ToString("dd.MM.yyyy HH:mm") ?? "N/A")</td>
                 <td>@await UserHelper.GetUserNameAsync(r.UserId)</td>
                 <td>
                     @* If the logged-in user is the review owner *@

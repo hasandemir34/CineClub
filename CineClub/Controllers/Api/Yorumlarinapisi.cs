@@ -11,11 +11,23 @@ public class Yorumlarinapisi : ControllerBase
 {
     private readonly CineDbContext _context;
     private readonly UserManager<IdentityUser> _userManager;
+    private readonly TimeZoneInfo _turkeyTimeZone;
 
     public Yorumlarinapisi(CineDbContext context, UserManager<IdentityUser> userManager)
     {
         _context = context;
         _userManager = userManager;
+        
+        // Türkiye saat dilimini ayarla
+        try
+        {
+            _turkeyTimeZone = TimeZoneInfo.FindSystemTimeZoneById("Turkey Standard Time");
+        }
+        catch
+        {
+            // Linux/Mac için alternatif
+            _turkeyTimeZone = TimeZoneInfo.FindSystemTimeZoneById("Europe/Istanbul");
+        }
     }
 
     // ÖZELLIK 4: GET: /api/reviews/{movieId}
@@ -44,11 +56,17 @@ public class Yorumlarinapisi : ControllerBase
                 username = user?.UserName;
             }
 
+            // UTC'den Türkiye saatine çevir
+            var reviewDateTurkey = review.CreatedAtUtc.HasValue
+                ? TimeZoneInfo.ConvertTimeFromUtc(review.CreatedAtUtc.Value, _turkeyTimeZone)
+                : (DateTime?)null;
+
             reviewsWithUsernames.Add(new
             {
                 review = review.Content,
                 reviewRate = review.Rating,
-                reviewDate = review.CreatedAtUtc,
+                reviewDate = reviewDateTurkey?.ToString("dd.MM.yyyy HH:mm"),
+                reviewDateUtc = review.CreatedAtUtc, // Opsiyonel: UTC tarih de döndürülebilir
                 username = username ?? "Unknown"
             });
         }

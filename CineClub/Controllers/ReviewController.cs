@@ -84,7 +84,9 @@ namespace CineClub.Controllers
                     return View(review);
                 }
 
+                // Burada tarihi UTC olarak ayarlayın
                 review.CreatedAtUtc = DateTime.UtcNow;
+                
                 _context.Add(review);
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
@@ -148,7 +150,7 @@ namespace CineClub.Controllers
                     reviewFromDb.Content = review.Content;
                     reviewFromDb.Rating  = review.Rating;
                     
-                    // ÖZELLIK 2: Review güncellendiğinde UpdatedAtUtc'yi set et
+                    // ÖZELLIK 2: Review güncellendiğinde UpdatedAtUtc'yi UTC olarak set et
                     reviewFromDb.UpdatedAtUtc = DateTime.UtcNow;
 
                     _context.Update(reviewFromDb);
