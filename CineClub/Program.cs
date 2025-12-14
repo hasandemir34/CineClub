@@ -4,6 +4,9 @@ using CineClub.Data;
 using CineClub.Services;
 using System.Globalization;
 
+
+//Hasan DEMİR B23102054
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
