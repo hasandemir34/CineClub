@@ -56,17 +56,30 @@ public class Yorumlarinapisi : ControllerBase
                 username = user?.UserName;
             }
 
-            // UTC'den Türkiye saatine çevir
-            var reviewDateTurkey = review.CreatedAtUtc.HasValue
-                ? TimeZoneInfo.ConvertTimeFromUtc(review.CreatedAtUtc.Value, _turkeyTimeZone)
-                : (DateTime?)null;
+            // Görüntülenecek en güncel tarihi seç: UpdatedAtUtc varsa onu, yoksa CreatedAtUtc'yi kullan.
+            var displayDate = review.UpdatedAtUtc ?? review.CreatedAtUtc;
+            var isEdited = review.UpdatedAtUtc.HasValue;
+
+            DateTime? reviewDateTurkey = null;
+
+            if (displayDate.HasValue)
+            {
+                // DÜZELTME: Kullanıcının bildirdiği (+3 saat ilerisi) hatayı çözmek için.
+                // Stored time'ın hatalı bir şekilde zaten Türkiye yerel saati olarak kaydedildiği varsayılırsa,
+                // fazladan bir UTC çevrimi yapmaktan kaçınıyoruz.
+                // Bu, ConvertTimeFromUtc çağrısını kaldırarak hatayı doğrudan çözer.
+                reviewDateTurkey = displayDate.Value;
+            }
 
             reviewsWithUsernames.Add(new
             {
                 review = review.Content,
                 reviewRate = review.Rating,
+                // Artık fazladan 3 saat eklenmeden, en son düzenleme zamanı (veya oluşturulma) doğru saatte görüntülenir.
                 reviewDate = reviewDateTurkey?.ToString("dd.MM.yyyy HH:mm"),
-                reviewDateUtc = review.CreatedAtUtc, // Opsiyonel: UTC tarih de döndürülebilir
+                reviewDateUtc = review.CreatedAtUtc, 
+                reviewUpdateDateUtc = review.UpdatedAtUtc, 
+                isEdited = isEdited, 
                 username = username ?? "Unknown"
             });
         }

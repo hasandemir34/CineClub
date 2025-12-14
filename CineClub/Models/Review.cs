@@ -13,7 +13,7 @@ public class Review
     [Range(1, 5)]
     public int? Rating { get; set; } = 5;
 
-    public DateTime? CreatedAtUtc { get; set; } = DateTime.UtcNow;
+    public DateTime? CreatedAtUtc { get; set; } = DateTime.Now;
 
     // Yeni eklenen property
     public DateTime? UpdatedAtUtc { get; set; }
