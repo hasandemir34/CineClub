@@ -84,7 +84,7 @@ namespace CineClub.Controllers
                     return View(review);
                 }
 
-                // Burada tarihi UTC olarak ayarlayın
+                // DÜZELTME: Türkiye yerel saatini kullan
                 review.CreatedAtUtc = DateTime.Now;
                 
                 _context.Add(review);
@@ -150,7 +150,7 @@ namespace CineClub.Controllers
                     reviewFromDb.Content = review.Content;
                     reviewFromDb.Rating  = review.Rating;
                     
-                    // ÖZELLIK 2: Review güncellendiğinde UpdatedAtUtc'yi UTC olarak set et
+                    // DÜZELTME: Türkiye yerel saatini kullan
                     reviewFromDb.UpdatedAtUtc = DateTime.Now;
 
                     _context.Update(reviewFromDb);
